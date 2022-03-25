@@ -11,11 +11,13 @@ function action = set_pwm(device, pwm_value)
 % Modified by: YOUR NAME and DATE
 
 %% Force PWM value to be valid
-pwm_value = 2000 % Bound value to limits 0 to 4095
+assert(pwm_value >= 0);
+assert(pwm_value <= 4095)% Bound value to limits 0 to 4095
 
 %% Send Command
-action = 'COM5' % string value of pwm_value for Josh's laptop :?
 % use the serialport() command options to change the PWM value to action
-s = serialport(action, pwm_value)
+%s = serialport("COM5", 19200);
+writeline(device, "P" + pwm_value)
+
 
 end
