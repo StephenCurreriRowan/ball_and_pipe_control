@@ -17,7 +17,7 @@ assert(pwm_value <= 4095)% Bound value to limits 0 to 4095
 %% Send Command
 % use the serialport() command options to change the PWM value to action
 %s = serialport("COM5", 19200);
-writeline(device, "P" + pwm_value)
+writeline(device, "P" + pwm_value);
 
 
 end

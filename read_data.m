@@ -17,18 +17,18 @@ function [distance,pwm,target,deadpan] = read_data(device)
 %% Ask nicely for data
 % use the serialport() command options to write the correct letter to the
 % system (Hint: the letters are in the spec sheet)
-pee = writeline(device, 'S')
+writeline(device, "S")
 
 %% Read data
 % use the serialport() command options to read the response
-data = read(device, 20, "string")
+data = read(device, 20, "char")
 
 %% Translate
 % translate the response to 4 doubles using str2double() and
 % extractBetween() (Hint: the response is in the spec sheet)
-distance  = str2double(extractBetween(data, ":", ","), 'exclusive'); %dddd
-manual_pwm = str2double(extractBetween(data, "d," , ",s", 'exclusive')); %pppp
-target     = str2double(extractBetween(data, "p,", ",h", 'exclusive')); %ssss
-deadpan    = str2double(data, 'hh', 'hh', 'inclusive'); %hhhh
+distance  = str2double(extractBetween(data, 2, 5,"Boundaries","inclusive")); %dddd
+manual_pwm = str2double(extractBetween(data, 7, 10, "Boundaries","inclusive")); %pppp
+target     = str2double(extractBetween(data, 12, 15, "Boundaries","inclusive")); %ssss
+deadpan    = str2double(extractBetween(data, 17, 20, "Boundaries","inclusive"; %hhhh
 
 end
