@@ -17,9 +17,9 @@ y_top     = 0.9144; % Ball at top of the pipe [m]
 
 %% Bound the IR reading and send error message 
 % (remeber the IR values are inverted ie small values == large height and large values == small height)
-assert(ir >= ir_top) ;
-assert(ir <= ir_bottom) ;
+%assert(ir >= ir_top) ;
+%assert(ir <= ir_bottom) ;
 %% Set
 pipe_percentage = ((ir_bottom - ir)/ir_bottom) * 100;
-y = pipe_percentage * y_top;
+y = y_top - (pipe_percentage * y_top);
 

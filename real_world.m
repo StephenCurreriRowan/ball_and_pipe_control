@@ -10,21 +10,20 @@ close all; clc; clear device;
 
 %% Connect to device
 device = serialport("COM5", 19200);
-s = serialport("COM5", 19200);
-pwm_value = 4000;
 %% Parameters
 target      = 0.5;   % Desired height of the ball [m]
 sample_rate = 0.25;  % Amount of time between controll actions [s]
+pwm_value = 4000;
 
 %% Give an initial burst to lift ball and keep in air
-set_pwm(s,pwm_value); % Initial burst to pick up ball
-pause(0.1) % Wait 0.1 seconds
-pwm_value = 3000;
-set_pwm(s,pwm_value); % Set to lesser value to level out somewhere in
+set_pwm(device,pwm_value); % Initial burst to pick up ball
+pause(0.1); % Wait 0.1 seconds
+pwm_value = 2625;
+set_pwm(device,pwm_value); % Set to lesser value to level out somewhere in
 % the pipe
 
 %% Initialize variables
-action      = 3000; % Same value of last set_pwm   
+action      = 2625; % Same value of last set_pwm   
 error       = 0;
 error_sum   = 0;
 
@@ -41,7 +40,7 @@ while true
     
     %% Control
     prev_action = action;
-    action = 2000% Come up with a scheme no answer is right but do something
+    action = 2625;% Come up with a scheme no answer is right but do something
     set_pwm(device, action); % Implement action
         
     % Wait for next sample
