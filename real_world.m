@@ -36,7 +36,7 @@ while true
     %% Read current height
    
     [distance,pwm,target1,deadpan] = read_data(device);
-    y = ir2y(distance/1000, new_percentage); % Convert from IR reading to distance from bottom [m]
+    y = ir2y(distance/1000); % Convert from IR reading to distance from bottom [m]
     
     %% Calculate errors for PID controller
     error_prev = error;             % D
@@ -46,7 +46,7 @@ while true
     %% Control
     prev_action = action;
     %action = 2625; % Come up with a scheme no answer is right but do something
-    %action = (target - error) * CONSTANT0 = ki + Kd
+    %action = (target - error) * CONSTANT0 + (maybe CONSTANT1) = ki + Kd
     %Ki = = CONSTANT1(error + error_sum) %value should be positive
     %Kd = = CONSTANT2(error - error_sum) %value should be negative
     if error > 0
@@ -62,15 +62,10 @@ while true
     %Will need a loop for if error is positive or negative
     %i have no idea how to get the values (he may have made the equations last week)
 
-    
    % sys = pid(kp, ki, kd, tf(a, 1 a 0));
     
-
     set_pwm(device, action); % Implement action
-        
-
     
-
     % Wait for next sample
     pause(sample_rate)
 end
