@@ -8,35 +8,34 @@
 %% Start fresh
 close all; clc; clear device;
 syms s;
-Kp = .1;
-Ki = .1;
-Kd = .1;
+Kp = 0;    %constant for proportional
+Ki = 0;    %constant for proportional-plus-integral (error) (should be very small)
+Kd = .5;    %constant for proportional-plus-derivative (transient response)
 new_percentage = 0;
 %% Connect to device
-device = serialport("COM5", 19200);
+device = serialport("COM5", 19200);     % baud rate of 19,200
 %% Parameters
 target      = 0.5;   % Desired height of the ball [m]
-sample_rate = 0.25;  % Amount of time between controll actions [s]
-pwm_value = 4000;
+sample_rate = 0.01;  % Amount of time between controll actions [s]
+pwm_value = 4000;    %pwm of 4000 keeps ball at top of pipe
 
 %% Give an initial burst to lift ball and keep in air
 set_pwm(device,pwm_value); % Initial burst to pick up ball
-pause(2); % Wait 0.1 seconds
-pwm_value = 2625; %2625
-set_pwm(device,pwm_value); % Set to lesser value to level out somewhere in
-% the pipe
+pause(2);                  % Wait 2 seconds
+pwm_value = 2625;          %2625 found to put ball around 0.5m target
+set_pwm(device,pwm_value); % Set to lesser value to level out 
 
 %% Initialize variables
 action      = 2625; % Same value of last set_pwm   
-error       = 0;
+error       = 0;    % Inital error 
 error_sum   = 0;
 
 %% Feedback loop
 while true
     %% Read current height
    
-    [distance,pwm,target1,deadpan] = read_data(device);
-    y = ir2y(distance/1000); % Convert from IR reading to distance from bottom [m]
+    [distance,pwm,target1,deadpan] = read_data(device); %pwm, target1, and deadpan unused
+    y = ir2y(distance/1000); % Convert from IR reading (mm) to distance from bottom [m]
     
     %% Calculate errors for PID controller
     error_prev = error;             % D
@@ -45,35 +44,21 @@ while true
     
     %% Control
     prev_action = action;
-    %action = 2625; % Come up with a scheme no answer is right but do something
-    %action = (target - error) * CONSTANT0 + (maybe CONSTANT1) = ki + Kd
-    %Ki = = CONSTANT1(error + error_sum) %value should be positive
-    %Kd = = CONSTANT2(error - error_sum) %value should be negative
-    if error > 0
-    action = prev_action + Kp*error + Ki*(1/error_sum) + Kd*(error_prev-error);
-    end
 
-    if error < 0
-    action = prev_action + Kp*error + Ki*(1/error_sum) + Kd*(error_prev-error);
-    end
+   Kp = 0; %Initial K constants set equal to 0
+   Kd = 0;
+   Ki = 0;
+   Final_Kp = Kp * error; %Kp proportional to error
+   Final_Kd = Kd * (error-error_prev); %Kd proportional to derivative of error
+   Final_Ki = Ki * error_sum; %Ki proportional to integral/sum of error
+   Sum_Final_K = Final_Kp + Final_Kd + Final_Ki; %Kpid
 
-    %inital thoughts
-    %Ki will naturally begin to have no effect 
-    %Will need a loop for if error is positive or negative
-    %i have no idea how to get the values (he may have made the equations last week)
+   action = prev_action + Sum_Final_K;
 
-   % sys = pid(kp, ki, kd, tf(a, 1 a 0));
-    
-    set_pwm(device, action); % Implement action
-    
-    % Wait for next sample
-    pause(sample_rate)
+   set_pwm(device, action); % Implement action
+
+   pause(sample_rate); %Wait for next sample
 end
-
-%might need to mulitply system by a aka a^2 on top for final value theroem
-%syms s
-%a = error
-%system = a^2/(s*(s+a));
 
 
 
